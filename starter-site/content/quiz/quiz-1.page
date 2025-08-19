@@ -1,0 +1,5 @@
+template = "quiz.jinja"
+content.quiz = "data/quiz-1.html"
+
+[data]
+title = "Quiz 1"

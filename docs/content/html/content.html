@@ -1,0 +1,117 @@
+<h1>Content files</h1>
+
+<h2>Overview</h2>
+
+<p>The <code>[content]</code> table in the <code>.page</code> file
+  links identifiers with filepaths relative to the directory
+  containing the <code>.page</code> file. SSG processes these files
+  and binds the results to the identifiers to make them available to
+  the template. For example, if you had the page
+  file <code>blog/test.page</code> containing:</p>
+
+<pre class=code>
+  [content]
+  main = "html/test.html"
+</pre>
+
+<p>then content of the file <code>blog/html/test.html</code> would be
+  processed and the result made available to the templates
+  as <code>page.content.main</code>.</p>
+
+<p>The types of file that can be processed are detailed below.</p>
+
+<h2>TOML</h2>
+
+<p>TOML files are identified by a suffix of <code>.toml</code> and are
+  processed by Python&apos;s standard tomllib module. This turns the
+  data into a mapping linking TOML identifiers to various types of
+  data, including strings, numbers, arrays and nested dictionaries. It
+  is very flexible. For more details, see
+  the <a href="https://toml.io/en/">official TOML website.</a></p>
+
+<p>For example, if you had a TOML file named <code>example.toml</code>
+  containing</p>
+
+<pre class=code>myarray = [1, 2, 3]</pre>
+
+<p>and you had the following in your <code>.page</code> file </p>
+
+<pre class=code>
+[content]
+example = "example.toml"</pre>
+
+<p>then <code>{{page.content.example.myarray}}</code> would give you
+  access to the array in your template.</p>
+
+<h2>JSON</h2>
+
+<p>JSON files are identified by the suffix <code>.json</code> and are
+  processed by Python's standard json module. JSON is a lot more
+  flexible than TOML with the type of top level data structure it
+  creates. If you had a JSON file named <code>example.json</code>
+  containing</p>
+
+<pre class=code>[1, 2, 3]</pre>
+
+<p>and you had the following in your <code>.page</code> file </p>
+
+<pre class=code>
+[content]
+example = "example.json"</pre>
+
+<p> then <code>{{page.content.example}}</code> would give you access
+  to the array in your template.</p>
+
+<h2>Sharded text files</h2>
+
+<p>Any file having a suffix other than <code>.toml</code> or <code>.json</code>
+  is treated as a generic text file; this includes html and markdown files. It
+  is possible to section up these files by using "shard markers".</p>
+
+<p>A shard marker has the form</p>
+
+<pre class=code>&lt;!-- shard: identifier --&gt;</pre>
+
+<p>where <code>identifier</code> is any valid TOML identifier. Dotted
+  identifiers are allowed, and identifiers need not be unique. A shard marker
+  must be alone on its own line. Processing as a sharded file is triggered by
+  the presence of a shard marker on the first line of the file.</p>
+
+<p>These sharded files are converted to TOML and then processed by Python's
+  standard tomllib module. If the identifier is unique, the shard text is
+  wrapped in a multiline string and bound to it. The shard texts of non-unique
+  identifiers are each wrapped in a multiline string and gathered into an
+  array, ordered in the same sequence as the shards in the file. For example
+  if <code>example.html</code> contained</p>
+
+<pre class=code>
+&lt;!-- shard a.b --&gt;
+&lt;p&gt;foo&lt;/p&gt;
+&lt;!-- shard c --&gt;
+&lt;p&gt;other thing&lt;/p&gt;
+&lt;!-- shard a.b --&gt;
+&lt;p&gt;bar&lt;/p&gt;
+</pre>
+
+<p> and your <code>.page</code> file contained</p>
+
+<pre class=code>
+[content]
+main = "example.html"</pre>
+
+<p>then <code>page.content.main</code> would give you access to the
+mapping created by processing the following TOML:</p>
+
+<pre class=code>
+a.b = ["""&lt;p&gt;foo&lt;/p&gt;""", """&lt;p&gt;bar&lt;/p&gt;"""]
+c = """&lt;p&gt;other thing&lt;/p&gt;"""</pre>
+
+<p>White space is preserved by TOML's multi-line string format, so
+  sections of markdown will work as expected.</p>
+
+<h2>Unsharded text files</h2>
+
+<p>If a file does not have either of the extensions <code>.toml</code>
+  or <code>.json</code> and also does not have a shard marker on the
+  first line of the file, its contents are simply bound to the
+  identifier as a multi-line string.</p>

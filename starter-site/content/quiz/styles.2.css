@@ -1,0 +1,43 @@
+
+h1 {
+    text-align: center;
+}
+
+.question {
+    padding: var(--spacing-m);
+    margin: var(--spacing-m) var(--spacing-l);
+    border: var(--border);
+    border-radius: var(--radius);
+}
+
+.description {
+    margin-bottom: var(--spacing-l);
+}
+
+quiz-q, quiz-a {
+    padding: 1rem;
+    margin: 1rem 2rem;
+    display: block;
+}
+
+quiz-a {
+    border: var(--border);
+    border-radius: var(--radius);
+    margin-left: 4rem;
+    cursor: pointer;
+}
+
+quiz-a:hover {
+    background-color: var(--color-1);
+}
+
+quiz-a.clicked {
+    border: 2px solid red;
+    background-color: #FDD;
+    padding: calc(1rem - 1px);
+}
+
+quiz-a.clicked.q-correct {
+    border: 2px solid green;
+    background-color: #DFD;
+}

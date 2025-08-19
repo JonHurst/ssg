@@ -1,0 +1,134 @@
+<h1>Page Files</h1>
+
+<p>Page files are TOML files with a <code>.page</code> suffix. They
+tie together data files and templates, and also function as placeholders
+  for the output file in the file hierarchy.</p>
+
+<p>All variables are optional. The following affect the operation of
+SSG:</p>
+
+<dl>
+  <dt><code>template</code></dt>
+  <dd>
+    <p>Specifies the template to use, relative to the
+    <code>templates</code> directory, e.g. if the template you want to
+    use for the page is:</p>
+
+    <pre class=code>/home/user/mysite/templates/blog/important.jinja</pre>
+
+    <p>you should put </p>
+
+    <pre class=code>template = "blog/important.jinja"</pre>
+
+    <p>in your <code>.page</code> file.</p>
+
+    <p>If no <code>template</code> is specified, no file will be
+    created, but the data associated with the page will still be
+    available to other pages. For example, a page such
+    as <code>global.page</code> could be created in the root of
+    the <code>content</code> directory and the data defined therein
+    would be accessible to all the templates
+    as <code>pages["global"].data</code>.</p>
+
+  </dd>
+  <dt><code>suffix</code></dt>
+  <dd>
+    <p>Each <code>.page</code> file in the <code>content</code>
+      hierarchy that specifies a template has a matching file in
+      the <code>public</code> directory that is the result of applying
+      the specified context to the specified template. This file
+      usually has the same name as the <code>.page</code> file, except
+      the suffix is changed to <code>.html</code>.
+      The <code>suffix</code> variable allows you to specify a
+      different replacement suffix. For example if you wanted
+      the <code>.page</code> file to be replaced with an xml file, you
+      should put</p>
+    <pre class=code>suffix = ".xml"</pre>
+
+    <p>in your page file.</p>
+  </dd>
+
+  <dt><code>weight</code></dt>
+  <dd>
+    <p>An integer. SSG makes an ordered list of siblings (page
+    files in the same directory) and adjacent siblings available to
+    the template. These siblings are ordered by weight, then filename.
+    If you wanted to give the processed page a weight of 10, you
+    should put:</p>
+
+    <pre class=code>weight = 10</pre>
+
+    <p>in your <code>.page</code> file.</p>
+
+    <p>You can also put:</p>
+
+    <pre class=code>weight = &quot;None&quot;</pre>
+
+    <p>This excludes the page from the sibling list. Note
+      that <code>&quot;None&quot;</code> is a string; TOML does not
+      have a null type.
+
+    <p>By default, pages have a weight of <code>0</code>, apart from
+    any page with the filename <code>index.page</code>, which has a
+    default weight of <code>&quot;None&quot;</code>.</p>
+
+    <p>The weight is available to the templates as
+    <code>page.weight</code>. It will be <code>None</code> if set
+    to <code>&quot;None&quot;</code> by the TOML.</p>
+  </dd>
+  <dt><code>tags</code></dt>
+  <dd>
+    <p>A list of strings that are interpreted as tags, e.g.</p>
+
+    <pre class=code>tags = ['tag1', 'tag2', 'tag3']</pre>
+
+    <p>The tags for all pages are made available to the templates in
+    the variable <code>tags</code>, which is a mapping of tag string to a list of
+    page identifiers that have specified that tag.</p>
+  </dd>
+  <dt><code>[data]</code></dt>
+  <dd>
+    <p>Everything in the <code>[data]</code> section is made available
+    to the templates as a dictionary. For example:</p>
+
+    <pre class=code>
+[data]
+images = ["img_1.webp", "img_2.webp", "img_3.webp"]</pre>
+
+    <p>would make <code>page.data.images</code> available as an array,
+    allowing you to do things like:</p>
+
+    <pre class=code>
+{% for img in page.data.images %}
+&lt;img src="{{img}}"/&gt;
+{% endfor %}</pre>
+    </code></blockquote>
+  </dd>
+  <dt><code>[content]</code></dt>
+  <dd>
+    <p>Each entry in the <code>[content]</code> section links an
+    identifier to the processed contents of a file, specified as a
+    path relative to the directory containing the <code>.page</code>,
+    file. Thus if you had a page file at:</p>
+
+    <pre class=code>/home/user/mysite/content/blog/2025-08-10.page</pre>
+
+    <p>and a TOML file containing data at:</p>
+
+    <pre class=code>/home/user/mysite/content/blog/data/2025-08-10.toml</pre>
+
+    <p>you could put</p>
+
+    <pre class=code>
+[content]
+mydata = "data/2025-08-10.toml"</pre>
+
+    <p>and that data would be available to your templates as a
+    dictionary named <code>page.content.mydata</code>.</p>
+
+    <p>See <a href="content.html">Content Files</a> for details of how
+      different types of file are processed and made available to the
+      templates.</p>
+  </dd>
+
+</dl>

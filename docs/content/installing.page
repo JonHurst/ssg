@@ -1,0 +1,4 @@
+template = "base.html"
+data.title = "Installing"
+content.main = "html/installing.html"
+weight = 400

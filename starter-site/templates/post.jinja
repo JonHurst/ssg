@@ -1,0 +1,17 @@
+{% extends "base.jinja" %}
+{% block header %}
+<nav>
+  Up: <a href="index.html">Index</a>
+  {% if page.lighter %}
+  {% set p = pages[page.lighter] %}
+  | Prev: <a href="{{p.filename}}">{{p.data.title}}</a>
+  {% endif %}
+  {% if page.heavier %}
+  {% set p = pages[page.heavier] %}
+  | Next: <a href="{{p.filename}}">{{p.data.title}}</a>
+  {% endif %}
+</nav>
+{% endblock %}
+{% block content %}
+{{ page.content.main | markdown }}
+{% endblock %}

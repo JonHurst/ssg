@@ -1,0 +1,4 @@
+template = "base.html"
+data.title = "Quick Mode"
+content.main = "html/quick-mode.html"
+weight = 500

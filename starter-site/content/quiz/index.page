@@ -1,0 +1,11 @@
+template = "section-index.jinja"
+content.main = "data/quiz-list.md"
+
+[data]
+title = "Quiz"
+parent = "index"
+summary = """
+An example of how one might do a quiz.
+
+Only three questions so far…
+"""

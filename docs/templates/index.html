@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+      <h1>SSG Documentation</h1>
+      <ol class="toc">
+        {% for p in page.siblings %}
+        {% set p = pages[p] %}
+        <li>{#({{p.weight}}) #}<a href="{{p.path}}">{{p.data.title}}</a></li>
+        {% endfor %}
+      </ol>
+{% endblock %}

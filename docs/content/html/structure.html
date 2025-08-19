@@ -1,0 +1,30 @@
+<h1>Directory Structure</h1>
+
+<p>The directory to be processed must contain a directory named
+<code>content</code> and a directory named <code>templates</code>. SSG
+builds your website in a directory named <code>public</code> which
+will be found alongside these two directories. Orphaned files from
+previous SSG runs are not deleted from <code>public</code>; if you
+wish to clean up these orphans, just delete <code>public</code> and
+SSG will create it afresh on the next run.</p>
+
+<p>Apart from files with the suffix <code>.page</code> and directories
+containing a file named <code>.ignore</code>, the contents of
+<code>content</code> are copied wholesale to <code>public</code>,
+including most file metadata — the <code>content</code> directory is
+effectively a template for the entire website, with <code>.page</code>
+files used as placeholders. Thus <code>content</code> should be
+structured exactly as you wish your final website to be structured,
+anticipating that <code>.page</code> files will be replaced with
+processed files.</p>
+
+<p>You can structure the <code>templates</code> directory however you
+like. The templates are referenced as relative paths from this
+directory.</p>
+
+<p><code>content</code>, <code>templates</code>, <code>.ignore</code>
+and the <code>.page</code> suffix constitute pretty much all the magic
+filenames that SSG uses. The only addition is
+that <code>index.page</code> has a default weight of <code>None</code>
+(see <a href="page_files.html">Page Files</a>).</p>
+

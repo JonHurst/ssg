@@ -1,0 +1,23 @@
+<h1>Quick Mode</h1>
+
+<p>To render in quick mode, add the command line
+  option <code>--quick</code>.
+
+<p>Quick mode dramatically speeds up rendering by making a pretty
+  heroic assumption: the target of a <code>.page</code> file is up to
+  date if the timestamp of the <code>.page</code> file and the
+  timestamps of all the files referenced in its <code>[content]</code>
+  table are less than the timestamp of the target.</p>
+
+<p>Since SSG makes the data associated with all pages available to the
+  template of every page and any change to the templates themselves
+  can affect any page, this is certainly not a generally valid
+  assumption. For many editing tasks, however, it is possible, knowing
+  how the content is structured, to determine that the assumption is
+  actually valid and thus take advantage of the faster rendering.</p>
+
+<p>For smaller sites, where a full rendering often costs well under a
+  hundred milliseconds, quick mode is probably not worth the effort.
+  For very large sites, however, the quick rendering may be worth the
+  added complexity for appropriate editing tasks.</p>
+

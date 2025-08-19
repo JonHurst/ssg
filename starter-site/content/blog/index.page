@@ -1,0 +1,14 @@
+template = "section-index.jinja"
+
+[data]
+title = "Blog"
+parent = "index"
+summary = """
+An example of how one might do a blog.
+
+Only three posts so far…
+"""
+
+
+[content]
+main = "md/index.md"

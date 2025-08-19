@@ -1,0 +1,203 @@
+<h1>Templates</h1>
+
+<p>Templates are placed in the <code>templates</code> directory. They
+  are referenced in the <code>.page</code> files as filepaths relative
+  to this directory.</p>
+
+<h2>Available variables</h2>
+
+<p>The following variables may be referenced in the templates:</p>
+
+<dl>
+  <dt><code>page</code></dt>
+
+  <dd>
+    <p>The <code>page</code> variable exposes the following
+      attributes:</p>
+    <dl>
+      <dt><code>id</code></dt>
+      <dd><p>The page's identifier. This is the normalized filepath of
+          the <code>.page</code> file relative to
+          the <code>content</code> directory, less
+          the <code>.page</code> suffix.</p>
+      </dd>
+      <dt><code>path</code></dt>
+      <dd>
+        <p>The full filepath of the output file, relative to
+        the <code>public</code> directory. If no template was
+        specified in the <code>.page</code> file, and hence no output
+        file was created, <code>path</code> will
+          be <code>None</code>.</p>
+      </dd>
+      <dt><code>filename</code></dt>
+      <dd>
+        <p>The filename of the output file. If no file was
+        created, <code>None</code>. This is particularly useful when
+        working with files in the same directory.</p>
+      </dd>
+      <dt><code>dir</code></dt>
+      <dd>
+        <p>The directory, relative to the <code>content</code>
+          directory, containing the <code>.page</code> file. If there
+          is an output file, this will also be the directory relative
+          to the <code>public</code> directory containing the output
+          file.</p>
+      </dd>
+      <dt><code>subdirs</code></dt>
+      <dd>
+        <p>Any non-ignored sub-directories in <code>dir</code>.</p>
+      </dd>
+
+      <dt><code>tags</code></dt>
+      <dd>
+        <p>The list of strings categorizing the page, as defined by
+          the <code>tags</code> variable in the <code>.page</code>
+          file.</p>
+      </dd>
+      
+      <dt><code>content</code></dt>
+      <dd>
+        <p>The content created by processing the files specified in
+          the <code>[content]</code> table of the <code>.page</code>
+          file. The data from each processed file is bound to the
+          defined identifier. For example:</p>
+
+        <pre class=code>[content]
+json = "mydata.json"</pre>          
+        
+        <p>binds the data structure created by passing the contents of
+          <code>mydata.json</code> to
+          Python's <code>json.loads()</code> to the
+          variable <code>page.content.json</code> in the template. The
+          data structure is dependent on the type of file bound — TOML
+          files and sharded text files are mappings, unsharded text
+          files are strings, and JSON files can be pretty much
+          anything.</p>
+      </dd>
+      <dt><code>data</code></dt>
+      <dd>
+        <p>A mapping of identifiers to TOML data, as defined under
+          the <code>[data]</code> table in the <code>.page</code>
+          file. For example:</p>
+
+        <pre class=code>[data]
+images = ["img-1.webp", "img-2.webp", "img-3.webp"]</pre>          
+
+        <p>would make the array of image filenames available to the
+          templates as <code>page.data.images</code>.</p>
+      </dd>
+      <dt><code>siblings</code></dt>
+      <dd>
+        <p>A list of the page identifiers of other page files residing
+          in the same directory. The page identifier of any page file
+          with a weight of <code>None</code> will be excluded from the
+          list. These are ordered by weight, then by filepath.</p>
+      </dd>
+      <dt><code>lighter</code></dt>
+      <dd>
+        <p>The page identifier of the page in the siblings list that
+          would appear before the current page..</p>
+      </dd>
+      <dt><code>heavier</code></dt>
+      <dd>
+        <p>The page identifier of the page in the siblings list that
+           would appear after the current page.</p>
+      </dd>
+    </dl>
+ </dd>
+
+  <dt><code>pages</code></dt>
+  <dd>
+    <p>A mapping of page identifiers to pages for all the page files
+      processed by SSG. Given a page identifier, you can access any of
+      the attributes documented above for the <code>page</code>
+      variable. For example, you could get the tags specified
+      for <code>index.page</code> in the root of the content hierarchy
+      with <code>pages['index'].tags</code>.</p>
+
+    <p>The data from pages that have no corresponding output file,
+      created by not specifying a template in the <code>.page</code>
+      file, are also available through <code>pages</code>. For
+      example, you could create <code>globals.page</code> in
+      the <code>content</code> directory, and access the data
+      specified in it through <code>pages['globals'].data</code>.</p>
+  </dd>
+
+  <dt><code>tags</code></dt>
+  <dd>
+    <p>A mapping of tag strings, as defined by any
+      <code>.page</code> files using the <code>tags</code> statement, to
+      a list of page identifiers containing those tags. The list is
+      sorted by weight, then filepath.</p>
+  </dd>
+
+  <dt><code>root</code></dt>
+  <dd>
+    <p>A string such as <code>../../</code> which may be pre-pended to
+      a filepath relative to the content directory (and hence also the
+      public directory) to make that filepath relative to the page.
+      For example if you had a file named <code>style.css</code> in a
+      css directory in the content directory, you could refer to it
+      from your page as</p>
+
+    <pre class=code>root ~ 'css/style.css'</pre>
+
+    <p>This empowers you to make all links relative to the page,
+      allowing you to deploy websites to any domain, and at any depth
+      within a domain.</p>
+
+    <p>It even allows you to, in many cases, view your website
+      directly on your local file system, without the need for a web
+      server.</p>
+  </dd>
+</dl>
+
+<h2>Custom filters</h2>
+
+<p>The following custom filters are added to Jinja's environment and
+  can be used in the templates:</p>
+
+<dl>
+  <dt>latest</dt>
+  <dd>
+    <p>This filter is used to allow versioned immutable files to
+      simplify cache management. If you
+      had <code>css/styles.3.css</code>
+      and <code>css/styles.4.css</code> in your <code>content</code>
+      directory and you called a template with</p>
+    <pre class=code>{{ root ~ "css/styles.css" | latest }}</pre>
+    <p>from <code>blog/example.page</code> it would
+      output <code>../css/styles.4.css</code>.</p>
+    <p>This allows you to keep older versions of style files etc.
+      around for however long you expect cached versions of your html
+      pages to be accessing them.</p>
+  </dd>
+    
+  <dt>dimensions</dt>
+  <dd>
+    <p>This filter is used to access the width and height of images, so
+      that they can be correctly inserted in <code>&lt;img&gt;</code>
+      tags, thus avoiding layout shift. If you had an the
+      image <code>images/example.webp</code> in
+      your <code>content</code> directory, you could use:</p>
+    <pre class=code>
+{% set url = root ~ "images/example.webp" %}
+{% set dims = url | dimensions %}
+&lt;img src="{{url}} height={{dims.height}} width={{dims.width}}/&gt;
+</pre>
+          
+  </dd>
+
+  <dt>markdown</dt>
+  <dd>
+    <p>This filter allows you to convert text content written in
+      commonmark to html. For example if you loaded a markdown file
+      with:</p>
+    <pre class=code>
+[content]
+main = example.md</pre>
+    <p>You could insert the html derived from this markdown into your template
+      with</p>
+    <pre class=code>{{ page.content.main | markdown }}</pre>
+  </dd>
+</dl>

@@ -1,0 +1,7 @@
+template = "home.jinja"
+
+[content]
+main = "html/home.html"
+
+[data]
+title = "Home"

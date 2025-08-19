@@ -1,0 +1,4 @@
+template = "base.html"
+data.title = "Structure"
+content.main = "html/structure.html"
+weight = 200

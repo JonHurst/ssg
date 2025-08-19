@@ -1,0 +1,88 @@
+:root {
+    --bg-color: white;
+    --color-0: black;
+    --color-1: #EEE;
+    --color-2: #EFE;
+    --border: 1px solid var(--color-1);
+}
+
+body {
+    background-color: var(--color-1);
+    padding: 0;
+    margin: 0;
+    font-family: helvetica, arial, sans-serif;
+    line-height: 1.5;
+}
+
+main, header {
+    color: var(--color-0);
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 1rem 10%;
+}
+
+@media (max-width: 30rem) {
+    main, header {
+        padding: 1rem;
+    }
+}
+
+main {
+    min-height: calc(100vh - 5.5rem - 1px);
+    background-color: var(--bg-color);
+}
+
+main.no-header {
+    min-height: calc(100vh - 5.5rem);
+    padding-top: 4.5rem;
+}
+
+header {
+    text-align: right;
+    position: sticky;
+    top: 0;
+    border-bottom: var(--border);
+    background-color: var(--color-2);
+}
+
+h1 {
+    text-align: center;
+    margin: 1rem 0 2rem;
+}
+
+code, pre.code {
+    font-size: 0.95rem;
+    background-color: var(--color-1);
+}
+
+pre.code {
+    margin: 1rem;
+    overflow-x: auto;
+    padding: 0.2rem;
+}
+
+dt {
+    font-weight: bold;
+}
+
+.toc {
+    width: 10rem;
+    margin: 4rem auto;
+}
+
+.toc li {
+    padding: 0.5rem;
+}
+
+table.download {
+    text-align: center;
+    margin: 2rem auto;
+    border-collapse: collapse;
+}
+
+table.download th, table.download td {
+    padding: 0.5rem;
+    border: 1px solid black;
+    width: 6rem;
+}
+

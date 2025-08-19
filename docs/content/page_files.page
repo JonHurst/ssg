@@ -1,0 +1,4 @@
+template = "base.html"
+data.title = "Pages"
+content.main = "html/page_files.html"
+weight = 225

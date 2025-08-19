@@ -1,0 +1,22 @@
+<h1>Overview</h1>
+
+<p>SSG is
+a <a href="https://www.netlify.com/blog/2020/04/14/what-is-a-static-site-generator-and-3-ways-to-find-the-best-one/?utm_source=jamstackorg&utm_medium=what-are-ssg-pnh&utm_campaign=devex">static
+site generator</a> that leverages the
+excellent <a href="https://jinja.palletsprojects.com/en/stable/">Jinja
+templating engine</a>, the expressiveness of
+the <a href="https://toml.io/en/">TOML file format</a> and the
+batteries included power
+of <a href="https://docs.python.org/3/library/index.html">Python&apos;s
+standard library</a> to create a static website from a simple file
+hierarchy of source material.</p>
+
+<p>Its modus operandi is loosely based on that of
+<a href="https://www.getzola.org/">Zola</a>, which, itself, works a
+lot like one of the most commonly used static site
+generators, <a href="https://gohugo.io">Hugo</a>. SSG is a great deal
+simpler than either of them, though. In particular, much less stuff
+gets done implicitly. Whether this is a desirable trait is very much
+dependent on your use case.</p>
+
+<p>For more information, see <a href="https://hursts.org.uk/ssg">the website.</a></p>

@@ -1,0 +1,4 @@
+template = "base.html"
+data.title = "Templates"
+content.main = "html/templates.html"
+weight = 300

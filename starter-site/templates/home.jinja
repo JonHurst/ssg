@@ -1,0 +1,20 @@
+{% extends "base.jinja" %}
+{% block content %}
+<div class="main-content">
+  {{ page.content.main }}
+</div>
+<div class="sections">
+  {% for dir in page.subdirs %}
+  {% set index = dir ~ "/index" %}
+  {% if index in pages %}
+  {% set section = pages[index] %}
+  <div class="section">
+    <h2>{{ section.data.title }}</h2>
+    <hr>
+    {{ section.data.summary | markdown }}
+    <a class="buttonlike" href="{{ root ~ section.path }}">Open</a>
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+{% endblock %}

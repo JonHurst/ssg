@@ -1,0 +1,35 @@
+<h1>Prerequisites</h1>
+
+<h2>Python interpreter</h2>
+
+<p>A Python interpreter with version 3.11 or newer must be installed. To
+obtain a copy:</p>
+
+<dl>
+  <dt>Linux<dd>
+    <p>Linux users will almost certainly have a suitable Python
+    interpreter pre-installed. If not, refer to your
+    distribution&apos;s documentation.</p>
+  <dt>Windows<dd>
+    <p>Windows users can install the latest Python interpreter from
+    the Microsoft store.</p>
+  <dt>Mac<dd>
+    <p>Mac users can download an installer
+    from <a href="https://python.org">python.org</a>.
+</dl>
+
+<h2>Knowledge of Jinja templates</h2>
+
+<p>All the heavy lifting is done
+by <a href="https://jinja.palletsprojects.com/en/stable/">the Jinja
+templating engine</a>. SSG just wrangles data that has been declared
+within a hierarchy of files and presents it as the context for Jinja.
+The more you know about Jinja, the more you can do with SSG.</p>
+
+<h2>Knowledge of TOML</h2>
+
+<p>What isn't done by Jinja is <a href="https://toml.io/en/">largely
+done by TOML</a>. TOML is used to link templates with output pages,
+control how pages relate to one another and provide a repository for
+free-form data that can be supplied as context for the templates. The
+better your understanding of TOML, the more sense SSG will make.</p>

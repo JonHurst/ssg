@@ -1,0 +1,5 @@
+template = "base.html"
+data.title = "Prerequisites"
+content.main = "html/prerequisites.html"
+weight = 150
+

@@ -1,0 +1,4 @@
+template = "base.html"
+data.title = "Quick Start"
+content.main = "html/quickstart.html"
+weight = 175

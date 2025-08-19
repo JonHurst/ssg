@@ -1,0 +1,26 @@
+{% extends "base.jinja" %}
+{% block header %}
+{% if page.data.parent in pages %}
+{% set up = pages[page.data.parent] %}
+<nav>
+  Up: <a href="{{ root ~ up.path }}">{{up.data.title}}</a>
+</nav>
+{% endif %}
+{% endblock %}
+{% block content %}
+
+{% if page.content.main %}
+{{ page.content.main | markdown }}
+{% endif %}
+
+{% if page.siblings %}
+<hr>
+<nav>
+  <div class="link-stack">
+    {% for p in page.siblings %}
+    <a href="{{pages[p].filename}}">{{pages[p].data.title or pages[p].filename}}</a>
+    {% endfor %}
+  </div>
+</nav>
+{% endif %}
+{% endblock %}

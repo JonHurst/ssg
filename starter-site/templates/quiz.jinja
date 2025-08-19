@@ -1,0 +1,23 @@
+{% extends "base.jinja" %}
+{% block head_extra %}
+   <script src="script.js"></script>
+   <link rel="stylesheet" type="text/css" href="{{'styles.css' | latest}}">
+{% endblock %}
+{% block header %}
+<nav>
+  Up: <a href="index.html">Quiz Menu</a>
+</nav>
+{% endblock %}
+{% block content %}
+<h1>{{page.data.title}}</h1>
+
+<div class="description">
+  {{page.content.quiz.description}}
+</div>
+<hr>
+{% for q in page.content.quiz.q %}
+<div class="question">
+  {{q}}
+</div>
+{% endfor %}
+{% endblock %}

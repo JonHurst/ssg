@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSG — {{page.data.title}}</title>
+    <link rel="stylesheet" href="{{root}}style.css">
+  </head>
+  <body>
+    {% if page.id != "index" %}
+    <header>
+      Up: <a href="index.html">Index</a>
+      {% if page.lighter %}
+      | Prev: <a href="{{pages[page.lighter].filename}}">{{pages[page.lighter].data.title}}</a>
+      {% endif %}
+      {% if page.heavier %}
+      | Next: <a href="{{pages[page.heavier].filename}}">{{pages[page.heavier].data.title}}</a>
+      {% endif %}
+    </header>
+    <main>
+    {% else %}
+    <main class=no-header>
+    {% endif %}
+      {% block content %}
+      {{page.content.main}}
+      {% endblock %}
+    </main>
+  </body>
+</html>

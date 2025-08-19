@@ -1,0 +1,28 @@
+#!/usr/bin/bash
+
+source venv/bin/activate
+
+pycodestyle ssg tests
+if [ $? -ne "0" ]
+then
+    exit 1
+fi
+
+mypy ssg/ tests/
+if [ $? -ne "0" ]
+then
+    exit 2
+fi
+
+pyflakes3 ssg tests
+if [ $? -ne "0" ]
+then
+    exit 3
+fi
+
+cd tests
+python -m unittest -b
+if [ $? -ne "0" ]
+then
+    exit 4
+fi
