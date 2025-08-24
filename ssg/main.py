@@ -64,13 +64,15 @@ def status_message(msg: str) -> None:
     print(f"[{datetime.datetime.now().isoformat()}] {msg}", file=sys.stdout)
 
 
-def error_message(msg: str) -> None:
+def error_message(msg: str, notes: list[str] = []) -> None:
     """Writes msg to stderr.
 
     :param msg: The message to write
     :returns: None:
     """
     print(f"[ERROR] {msg}", file=sys.stderr)
+    for note in notes:
+        print(f"        {note}", file=sys.stderr)
 
 
 def find_site_root() -> Optional[Path]:
@@ -150,26 +152,32 @@ def process_content(filepath: Path) -> Any:
         contain valid TOML.
 
     '''
-    content = filepath.read_text()
-    if filepath.suffix == ".json":
-        return json.loads(content)
-    if filepath.suffix == ".toml":
-        return tomllib.loads(content)
-    shard_re = r"<!--\s*shard:\s*([\w.]+)\s*-->\s*$"
-    shards = re.split(shard_re, content, flags=re.M)
-    if len(shards) > 1 and shards[0] == "":  # Sharded content
-        shard_dict: dict[str, list[str]] = {}
-        for id_, shard in zip(shards[1::2], shards[2::2]):
-            shard_dict.setdefault(id_, []).append(shard)
-        statements = []
-        for k, v in shard_dict.items():
-            if len(v) > 1:
-                array = ', '.join((f'"""{X.strip()}"""' for X in v))
-                statements.append(f"{k} = [{array}]")
-            else:
-                statements.append(f'{k} = """{v[0].strip()}"""')
-        return tomllib.loads("\n".join(statements))
-    return content  # Any other text content
+    try:
+        content = filepath.read_text()
+        if filepath.suffix == ".json":
+            return json.loads(content)
+        if filepath.suffix == ".toml":
+            return tomllib.loads(content)
+        shard_re = r"<!--\s*shard:\s*([\w.]+)\s*-->\s*$"
+        shards = re.split(shard_re, content, flags=re.M)
+        if len(shards) > 1 and shards[0] == "":  # Sharded content
+            shard_dict: dict[str, list[str]] = {}
+            for id_, shard in zip(shards[1::2], shards[2::2]):
+                shard = shard.replace('"""', r'""\"').strip()
+                shard_dict.setdefault(id_, []).append(shard)
+            statements = []
+            for k, v in shard_dict.items():
+                if len(v) > 1:
+                    array = ', '.join((f'"""{X}"""' for X in v))
+                    statements.append(f"{k} = [{array}]")
+                else:
+                    statements.append(f'{k} = """{v[0]}"""')
+            return tomllib.loads("\n".join(statements))
+        return content  # Any other text content
+    except (OSError, json.JSONDecodeError,
+            UnicodeDecodeError, tomllib.TOMLDecodeError) as e:
+        e.add_note(f"While processing {filepath}")
+        raise e
 
 
 def process_page_file(
@@ -200,17 +208,16 @@ def process_page_file(
             latest_timestamp = max(latest_timestamp, os.stat(path).st_mtime_ns)
             content[k] = process_content(path)
     except (AttributeError, FileNotFoundError):
-        raise TypeError(f"Field 'content' in '{page_id}.page' must be a"
+        raise TypeError("Field 'content' must be a"
                         " TOML table of identifiers and valid filepaths.")
     data = toml.get("data", {})
     if "template" in toml:
         if not isinstance(toml["template"], str):
-            raise TypeError(f"Field 'template' in '{page_id}.page must be"
+            raise TypeError("Field 'template' must be"
                             " a string giving a relative template path")
         suffix = toml.get("suffix", ".html")
         if not isinstance(suffix, str):
-            raise TypeError(
-                f"Field 'suffix' in '{page_id}.page' must be a string")
+            raise TypeError("Field 'suffix' must be a string")
         path = Path(page_id).with_suffix(suffix)
         dir_ = path.parent.as_posix()
         name = path.name
@@ -223,8 +230,7 @@ def process_page_file(
     tags = toml.get("tags", [])
     if ((not isinstance(tags, list)) or
             sum([not isinstance(X, str) for X in tags])):
-        raise TypeError(
-            f"Field 'tags' in '{page_id}.page' must be a list of strings")
+        raise TypeError("Field 'tags' must be a list of strings")
     weight = process_weight(toml, page_id)
     page = Page(
         page_id,
@@ -252,8 +258,8 @@ def process_weight(toml: dict[str, Any], page_id: str) -> None | int:
     elif weight == "None":
         weight = None
     if not isinstance(weight, int | None):
-        raise TypeError(f"Field 'weight' in '{page_id}.page' must be an"
-                        f" integer or the string \"None\"")
+        raise TypeError("Field 'weight' must be an"
+                        " integer or the string \"None\"")
     return weight
 
 
@@ -364,7 +370,12 @@ def build_library(content_dir: Path) -> Library:
                 page_id = relpath.with_suffix("").as_posix()
                 subdirs = [Path(X) for X in dirnames
                            if not Path(dirpath, X, ".ignore").exists()]
-                page, task = process_page_file(content_dir, subdirs, page_id)
+                try:
+                    page, task = process_page_file(
+                        content_dir, subdirs, page_id)
+                except BaseException as e:
+                    e.add_note(f"While processing {filepath}")
+                    raise e
                 if page:
                     pages[page_id] = page
                 if task:
@@ -529,29 +540,23 @@ def main() -> None:
     print(f"ssg version {VERSION}\n")
     try:
         if not (site_root := find_site_root()):
-            raise IOError("Could not find content directory")
+            raise OSError("Could not find content directory")
         content, templates, public = (
             (site_root / X).resolve()
             for X in ("content", "templates", "public"))
         quick = len(sys.argv) > 1 and sys.argv[1] == "--quick"
         build(content, templates, public, quick)
         system_exit(0)
-    except IOError as e:
-        error_message(f"File processing: {e}")
-        system_exit(-2)
-    except TypeError as e:
-        error_message(f"Type error: {e}")
-    except tomllib.TOMLDecodeError as e:
-        error_message(f"TOML decoding: {e}")
-        system_exit(-3)
     except jinja.TemplateSyntaxError as e:
         error_message(
             f"Template Syntax Error at line {e.lineno} of {e.name}:\n"
             f"-- {e.message}\n-- Template called by {e.filename}")
-        system_exit(-4)
-    except jinja.TemplateError as e:
-        error_message(f"Template processing: {e}")
-        system_exit(-4)
+        system_exit(-1)
+    except (OSError, TypeError, UnicodeDecodeError,
+            tomllib.TOMLDecodeError, json.JSONDecodeError,
+            jinja.TemplateError) as e:
+        error_message(str(e), e.__notes__)
+        system_exit(-2)
 
 
 def system_exit(code: int):

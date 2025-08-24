@@ -1,6 +1,7 @@
 import os.path
 from pathlib import Path
 import tomllib
+import json
 
 from pyfakefs.fake_filesystem_unittest import (   # type: ignore
     TestCase as FFTestCase
@@ -71,6 +72,35 @@ class TestContentProcessing(FFTestCase):
                                'shard c')))
         expected = {'a': {'b': ['shard a.b.1', 'shard a.b.2\nmore']},
                     'c': 'shard c'}
+        self.assertEqual(process_content(Path("/test.md")), expected)
+
+    def test_bad_filename(self):
+        with self.assertRaises(OSError) as cm:
+            process_content(Path("/bad.html"))
+        self.assertNotEqual(str(cm.exception).find("No such file"), -1)
+
+    def test_bad_json(self):
+        with open("/test.json", "wb") as f:
+            f.write(b'\xabcd')
+        with self.assertRaises(UnicodeDecodeError):
+            process_content(Path("/test.json"))
+        with open("/test.json", "w") as f:
+            f.write("abcd")
+        with self.assertRaises(json.JSONDecodeError) as cm:
+            process_content(Path("/test.json"))
+        print(str(cm.exception))
+        self.assertNotEqual(str(cm.exception).find("Expecting value"), -1)
+
+    def test_shards_with_triple_quote(self):
+        with open("/test.md", "w") as f:
+            f.write("\n".join(('<!-- shard: a.b -->',
+                               'shard """a.b.1"""',
+                               '<!-- shard: a.b -->',
+                               'shard a.b.2\nmore',
+                               '<!-- shard: c -->',
+                               'shard """c')))
+        expected = {'a': {'b': ['shard """a.b.1"""', 'shard a.b.2\nmore']},
+                    'c': 'shard """c'}
         self.assertEqual(process_content(Path("/test.md")), expected)
 
 
