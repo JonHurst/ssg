@@ -138,6 +138,17 @@ def process_content(filepath: Path) -> Any:
         of converting to TOML and then passing to tomllib.loads, otherwise the
         unprocessed text content of the file.
 
+    :raises OSError: If filepath does not lead to a readable file
+
+    :raises JSONDecodeError: If filepath has suffix ".json" but is not a valid
+        JSON document.
+
+    :raises UnicodeDecodeError: If filepath has suffix ".json" but does not
+        contain UTF-8, UTF-16 or UTF-32 data.
+
+    :raises TOMLDecodeError: If filepath has suffix ".toml" but does not
+        contain valid TOML.
+
     '''
     content = filepath.read_text()
     if filepath.suffix == ".json":
