@@ -540,7 +540,6 @@ def build(content: Path, templates: Path, public: Path, quick: bool) -> None:
 
 
 def main() -> None:
-    global VERSION
     print(f"ssg version {VERSION}\n")
     try:
         if not (site_root := find_site_root()):
