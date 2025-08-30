@@ -489,8 +489,12 @@ def output_site(
         template = jinja_env.get_template(task.template)
         root = ("/".join(".." for X in task.output_path.parent.parts) or
                 ".") + "/"
-        output = template.render(
-            page=page, pages=library.pages, tags=library.tags, root=root)
+        try:
+            output = template.render(
+                page=page, pages=library.pages, tags=library.tags, root=root)
+        except jinja.TemplateError as e:
+            e.add_note(f"While processing content/{task.page_id}.page")
+            raise e
         output_path = public / task.output_path
         old_output = output_path.exists() and output_path.read_text()
         if output != old_output:
@@ -555,7 +559,7 @@ def main() -> None:
     except (OSError, TypeError, UnicodeDecodeError,
             tomllib.TOMLDecodeError, json.JSONDecodeError,
             jinja.TemplateError) as e:
-        error_message(str(e), e.__notes__)
+        error_message(str(e), getattr(e, "__notes__", []))
         system_exit(-2)
 
 
