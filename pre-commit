@@ -14,7 +14,7 @@ then
     exit 2
 fi
 
-pyflakes3 ssg tests
+pyflakes ssg tests
 if [ $? -ne "0" ]
 then
     exit 3
