@@ -16,7 +16,8 @@ from ssg.main import (
     define_jinja_filters,
     build_library,
     output_site,
-    build,)
+    build,
+    asset_list,)
 
 
 def page_for_testing(page_path, **kwargs):
@@ -271,6 +272,19 @@ class TestLibraryBuild(FFTestCase):
             build_library(Path("/content"))
         self.assertNotEqual(str(cm.exception).find("TOML table"), -1)
 
+    def test_assets(self):
+        os.makedirs("/content/js/")
+        os.makedirs("/content/ignoreme")
+        for path in ["/content/test.txt", "/content/test.page", "w",
+                     "/content/js/test.js", "/content/ignoreme/.ignore",
+                     "/content/ignoreme/ignore_this"]:
+            with open(path, "w") as f:
+                f.write("")
+        library = build_library(Path("/content"))
+        self.assertEqual(
+            library.assets,
+            [Path("test.txt"), Path("js/test.js")])
+
 
 class TestCustomFilters(FFTestCase):
 
@@ -286,7 +300,7 @@ class TestCustomFilters(FFTestCase):
     def test_latest_filter(self):
         env = TestCustomFilters.MockEnvironment()
         env.filters = {}
-        library = Library({}, {}, {}, {}, {})
+        library = Library({}, {}, {}, {}, {}, [])
         define_jinja_filters(library, env)
         latest = env.filters["latest"]
         # a relative URL

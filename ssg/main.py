@@ -53,6 +53,7 @@ class Library(NamedTuple):
     versioned: dict[Path, int]
     image_info: dict[Path, ImageInfo]
     tags: dict[str, list[str]]
+    assets: list[Path]
 
 
 def status_message(msg: str) -> None:
@@ -327,6 +328,19 @@ def fix_siblings(pages: dict[str, Page]) -> None:
             heavier=heavier)
 
 
+def asset_list(content_dir: Path) -> list[Path]:
+    assets: list[Path] = []
+    for root, dirs, files in os.walk(content_dir):
+        for c, dir in enumerate(dirs):
+            if Path(root, dir, ".ignore").exists():
+                del dirs[c]
+        for f in files:
+            fullpath = Path(root, f)
+            if fullpath.suffix != ".page":
+                assets.append(fullpath.relative_to(content_dir))
+    return assets
+
+
 def build_library(content_dir: Path) -> Library:
     """Create a library containing the information needed to process the .page
     files into output files from the files in the content directory.
@@ -388,8 +402,9 @@ def build_library(content_dir: Path) -> Library:
             process_versioned(relpath, max_version)
     fix_siblings(pages)
     tags = process_tags(pages)
+    assets = asset_list(content_dir)
     status_message("Finished building library")
-    return Library(pages, tasks, max_version, image_info, tags)
+    return Library(pages, tasks, max_version, image_info, tags, assets)
 
 
 def process_tags(pages: dict[str, Page]) -> dict[str, list[str]]:
@@ -491,7 +506,9 @@ def output_site(
                 ".") + "/"
         try:
             output = template.render(
-                page=page, pages=library.pages, tags=library.tags, root=root)
+                page=page, pages=library.pages,
+                tags=library.tags, assets=library.assets,
+                root=root)
         except jinja.TemplateError as e:
             e.add_note(f"While processing content/{task.page_id}.page")
             raise e
